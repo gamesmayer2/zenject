@@ -16,7 +16,8 @@
 
 - [Introduction](#introduction)
 - [Features](#features)
-- [Installation \*](#installation-)
+- [Installation](#installation)
+- [Development](#development)
 - [History](#history)
 - [Documentation](#documentation)
 - [What is Dependency Injection?](#what-is-dependency-injection)
@@ -156,7 +157,7 @@ Or, if you have found a bug, you are also welcome to create an issue on the [git
 - Support for 'reflection baking' to eliminate costly reflection operations completely by directly modifying the generated assemblies
 - Automatic injection of game objects using ZenAutoInjecter component
 
-## Installation ![GitHub release (latest by date)](https://img.shields.io/github/v/release/Mathijs-Bakker/Extenject?color=green)
+## Installation
 
 [![GitHub releases](https://img.shields.io/static/v1?style=for-the-badge&label=GitHub%20Releases&labelColor=181717&message=Downloads&color=green&logo=GitHub&logoColor=white)](https://github.com/Mathijs-Bakker/Extenject/releases)
 [![Unity](https://img.shields.io/static/v1?style=for-the-badge&label=Unity%20Asset%20Store&labelColor=181717&message=Download&color=green&logo=Unity&logoColor=white)](https://assetstore.unity.com/packages/tools/utilities/extenject-dependency-injection-ioc-157735)
@@ -188,6 +189,10 @@ You can install Zenject using any of the following methods
     - Then you can copy the `UnityProject/Assets/Plugins/Zenject` directory to your own Unity3D project.
 
 Note that when importing Zenject into your unity project, you can uncheck any folder underneath the "Samples" or the "Tests" for cases where you don't want to include it, or if you just want the core zenject functionality, you can uncheck the entire "Samples" and "Tests" directory.
+
+## Development
+
+If you want to collaborate on Zenject or extend the project, see the [Development guide](Documentation/Development.md).
 
 ## History
 

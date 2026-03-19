@@ -1,17 +1,16 @@
-name: CI 
+name: CI
 
 on:
   push:
     branches:
       - master
     paths-ignore:
-      - '*.md'
-      - 'README.md'
+      - "*.md"
+      - "README.md"
   workflow_dispatch: {}
-      
+
 jobs:
   buildAndTestForSupportedPlatforms:
-
     name: Build for ${{ matrix.targetPlatform }} on version ${{ matrix.unityVersion }}
 
     runs-on: ubuntu-latest
@@ -24,7 +23,7 @@ jobs:
         assetsPath:
           - UnityProject
         unityVersion:
-          - 2019.4.1f1
+          - 6000.3.8f1
         targetPlatform:
           - Android # Build a Android standalone.
           - iOS # Build an iOS player.
@@ -40,7 +39,6 @@ jobs:
           - editmode
 
     steps:
-
       # Need to be rootless to have write access for checkout and clone repo
       - name: Use container in rootless mode
         uses: ScribeMD/rootless-docker@0.1.7
@@ -60,7 +58,7 @@ jobs:
           unityVersion: ${{ matrix.unityVersion }}
           projectPath: ${{ matrix.projectPath }}
 
-      # Checkout and clone UniDi into Assets 
+      # Checkout and clone UniDi into Assets
       # There's no need to do complicated stuff like managing the project manifest
       # We just clone to the Assets folder as tests will run from here.
       # If there's another way in the future (like automating the process with a cmd for
@@ -102,7 +100,7 @@ jobs:
           path: ${{ steps.testRunner.outputs.artifactsPath }}
 
       # Build
-      - name: Build 
+      - name: Build
         uses: game-ci/unity-builder@v2
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
@@ -113,55 +111,51 @@ jobs:
           # Allow Dirty Build as the semantic versioning is doing unsuspecting things
           # this could be something to look further into
           allowDirtyBuild: true
-          
+
   build-Zenject-Usage:
-  
     runs-on: ubuntu-latest
-    
+
     name: Build Zenject-Usage
-    
+
     env:
       DOTNET_NOLOGO: true
 
     steps:
-    
-    - uses: actions/checkout@v2
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.1.x
-      
-    - name: Build
-      run: dotnet build AssemblyBuild\Zenject-usage.sln
-      
-    - name: Upload dll
-      uses: actions/upload-artifact@v1
-      with:
-        name: Zenject-Usage
-        path: AssemblyBuild/Zenject-Usage/Zenject-Usage/bin/Debug/netcoreapp3.1/Zenject-Usage.dll
-        
+      - uses: actions/checkout@v2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.x
+
+      - name: Build
+        run: dotnet build AssemblyBuild\Zenject-usage.sln
+
+      - name: Upload dll
+        uses: actions/upload-artifact@v1
+        with:
+          name: Zenject-Usage
+          path: AssemblyBuild/Zenject-Usage/Zenject-Usage/bin/Debug/netcoreapp3.1/Zenject-Usage.dll
+
   deployBuild:
-  
     name: Deploy Build Zenject-Usage
 
     runs-on: ubuntu-latest
     needs: build-Zenject-Usage
-        
+
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
-    - name: Checkout repository
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
+      - name: Download Zenject-Usage
+        uses: actions/download-artifact@v1
+        with:
+          name: UniDi-Usage
 
-    - name: Download Zenject-Usage
-      uses: actions/download-artifact@v1
-      with:
-        name: UniDi-Usage
-
-    - name: Install Zenject-Usage
-      run: |
-        ls -l Zenject-Usage
-        cp Zeenject-Usage/Zenject-Usage.dll Source/Usage
-        ls -l Source/Usage
+      - name: Install Zenject-Usage
+        run: |
+          ls -l Zenject-Usage
+          cp Zeenject-Usage/Zenject-Usage.dll Source/Usage
+          ls -l Source/Usage
