@@ -34,6 +34,13 @@ namespace Zenject
 
             injectAction = null;
 
+            if (Container.IsValidating)
+            {
+                Container.ResolveId<TMemoryPool>(PoolId);
+                buffer.Add(new ValidationMarker(typeof(TContract)));
+                return;
+            }
+
             if (_pool == null)
             {
                 _pool = Container.ResolveId<TMemoryPool>(PoolId);
@@ -84,6 +91,13 @@ namespace Zenject
             Assert.That(args[0].Type.DerivesFromOrEqual<TParam1>());
 
             injectAction = null;
+
+            if (Container.IsValidating)
+            {
+                Container.ResolveId<TMemoryPool>(PoolId);
+                buffer.Add(new ValidationMarker(typeof(TContract)));
+                return;
+            }
 
             if (_pool == null)
             {
@@ -138,6 +152,13 @@ namespace Zenject
             Assert.That(args[1].Type.DerivesFromOrEqual<TParam2>());
 
             injectAction = null;
+
+            if (Container.IsValidating)
+            {
+                Container.ResolveId<TMemoryPool>(PoolId);
+                buffer.Add(new ValidationMarker(typeof(TContract)));
+                return;
+            }
 
             if (_pool == null)
             {
@@ -195,6 +216,13 @@ namespace Zenject
             Assert.That(args[2].Type.DerivesFromOrEqual<TParam3>());
 
             injectAction = null;
+
+            if (Container.IsValidating)
+            {
+                Container.ResolveId<TMemoryPool>(PoolId);
+                buffer.Add(new ValidationMarker(typeof(TContract)));
+                return;
+            }
 
             if (_pool == null)
             {
@@ -255,6 +283,13 @@ namespace Zenject
             Assert.That(args[3].Type.DerivesFromOrEqual<TParam4>());
 
             injectAction = null;
+
+            if (Container.IsValidating)
+            {
+                Container.ResolveId<TMemoryPool>(PoolId);
+                buffer.Add(new ValidationMarker(typeof(TContract)));
+                return;
+            }
 
             if (_pool == null)
             {
@@ -318,6 +353,13 @@ namespace Zenject
             Assert.That(args[4].Type.DerivesFromOrEqual<TParam5>());
 
             injectAction = null;
+
+            if (Container.IsValidating)
+            {
+                Container.ResolveId<TMemoryPool>(PoolId);
+                buffer.Add(new ValidationMarker(typeof(TContract)));
+                return;
+            }
 
             if (_pool == null)
             {
@@ -384,6 +426,13 @@ namespace Zenject
             Assert.That(args[5].Type.DerivesFromOrEqual<TParam6>());
 
             injectAction = null;
+
+            if (Container.IsValidating)
+            {
+                Container.ResolveId<TMemoryPool>(PoolId);
+                buffer.Add(new ValidationMarker(typeof(TContract)));
+                return;
+            }
 
             if (_pool == null)
             {
