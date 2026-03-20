@@ -54,6 +54,7 @@ namespace Zenject.Tests.IntegrationTests.Async.Addressable
 
         private static bool HasAddressablesRuntimeData()
         {
+#if UNITY_EDITOR
             const string addressablesDataRoot = "Library/com.unity.addressables/aa";
 
             if (!Directory.Exists(addressablesDataRoot))
@@ -64,6 +65,9 @@ namespace Zenject.Tests.IntegrationTests.Async.Addressable
             // Any built platform runtime settings file is enough to run these editor-side tests.
             string[] settingsFiles = Directory.GetFiles(addressablesDataRoot, "settings.json", SearchOption.AllDirectories);
             return settingsFiles.Length > 0;
+#else
+            return Directory.Exists(Path.Combine(Application.streamingAssetsPath, "aa"));
+#endif
         }
     }
 }
