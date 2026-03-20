@@ -125,10 +125,6 @@ IL2CPP is supported, however there are some gotchas - see [here](#does-this-work
 
 This project is open source.
 
-For general troubleshooting / support, please post to [stack overflow](https://stackoverflow.com/questions/ask) using the tag 'zenject', or post in the [zenject google group](https://groups.google.com/forum/#!forum/zenject/)
-
-Or, if you have found a bug, you are also welcome to create an issue on the [github page](https://github.com/Mathijs-Bakker/Extenject), or a pull request if you have a fix / extension. There is also a [gitter chat](https://gitter.im/Extenject/community) that you can join for real time discussion.
-
 ## Features
 
 - Injection
@@ -171,24 +167,49 @@ You can install Zenject using any of the following methods
     - **Zenject.vX.X.unitypackage** - Same as above except without the Sample projects.
     - **Zenject-NonUnity.vX.X.zip** - Use this if you want to [use Zenject outside of Unity](#using-zenject-outside-unity-or-for-dlls) (e.g. just as a normal C# project)
 
-1.  **From the [Unity Asset Store](https://assetstore.unity.com/packages/tools/utilities/extenject-dependency-injection-framework-157735)**
-    - Normally this should be the same as what you find in the [Releases section](https://github.com/svermeulen/Extenject/releases), but may also be slightly out of date since Unity Asset Store can take a week or so to review submissions sometimes.
-
-1.  **UPM Branch**
-    - This option is a [feature request](https://github.com/svermeulen/Extenject/issues/24). The package will be released when Unity is ready. Unity is not giving any insights on the development status. But the expectation is in the first or second release of 2020.
-    - If you can not wait. There is an alternative. But you will need the Unity extension found [here](https://github.com/mob-sakai/UpmGitExtension). And the package found [here](https://github.com/starikcetin/Extenject/tree/upm).
-
-1.  **Unity Package Manager**
+2.  **Unity Package Manager**
     - Use `UnityProject/Assets/Plugins/Zenject/Source/package.json`
       - Window -> Package Manager
       - Select `Add package from git URL...`
-      - Use `https://github.com/Mathijs-Bakker/Extenject.git?path=UnityProject/Assets/Plugins/Zenject/Source`
+      - Use `https://github.com/gamesmayer2/zenject.git?path=UnityProject/Assets/Plugins/Zenject/Source`
 
-1.  **From Source**
+3.  **From Source (DLL)**
     - After syncing the git repo, note that you will have to build the `Zenject-Usage.dll` by building the solution at `AssemblyBuild\Zenject-usage\Zenject-usage.sln`. Or, if you prefer you can get `Zenject-Usage.dll` from Releases section instead
     - Then you can copy the `UnityProject/Assets/Plugins/Zenject` directory to your own Unity3D project.
 
 Note that when importing Zenject into your unity project, you can uncheck any folder underneath the "Samples" or the "Tests" for cases where you don't want to include it, or if you just want the core zenject functionality, you can uncheck the entire "Samples" and "Tests" directory.
+
+# Build
+
+If you choose to install Zenject from source, you will have to build the .dll file.
+
+## Prerequisites
+
+- Unity Editor 6 or newer (6000.x).
+- .NET SDK / MSBuild for C# solution builds.
+- Python 3.7+ for the release helper scripts in the `Build` folder.
+
+## Build Zenject-usage.dll
+
+The `Zenject-usage.dll` assembly is built from the solution in `AssemblyBuild/Zenject-usage`.
+
+On macOS/Linux:
+
+```bash
+cd AssemblyBuild/Zenject-usage
+dotnet build Zenject-usage.sln
+```
+
+On Windows (Developer Command Prompt):
+
+```bat
+cd AssemblyBuild\Zenject-usage
+msbuild Zenject-usage.sln
+```
+
+If needed for local Unity workflows, place the produced DLL in:
+
+`UnityProject/Assets/Plugins/Zenject/Source/Usage`
 
 ## Development
 
