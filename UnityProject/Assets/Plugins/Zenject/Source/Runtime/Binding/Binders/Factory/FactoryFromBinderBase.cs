@@ -4,6 +4,8 @@ using ModestTree;
 
 #if !NOT_UNITY3D
 using UnityEngine;
+#endif
+#if EXTENJECT_INCLUDE_ADDRESSABLE_BINDINGS
 using UnityEngine.AddressableAssets;
 #endif
 
@@ -211,6 +213,7 @@ namespace Zenject
             return new NameTransformScopeConcreteIdArgConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
         }
 
+#if EXTENJECT_INCLUDE_ADDRESSABLE_BINDINGS
         public NameTransformScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentInAssetReference(AssetReference prefab)
         {
             BindingUtil.AssertIsInterfaceOrComponent(ContractType);
@@ -230,7 +233,7 @@ namespace Zenject
 
             return new NameTransformScopeConcreteIdArgConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
         }
-        
+
         public NameTransformScopeConcreteIdArgConditionCopyNonLazyBinder FromAssetReferenceGameObject(AssetReferenceGameObject prefab)
         {
             var gameObjectInfo = new GameObjectCreationParameters();
@@ -246,6 +249,7 @@ namespace Zenject
 
             return new NameTransformScopeConcreteIdArgConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
         }
+#endif
 
         public NameTransformScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentInNewPrefabResource(string resourcePath)
         {
