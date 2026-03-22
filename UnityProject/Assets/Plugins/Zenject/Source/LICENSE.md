@@ -1,6 +1,6 @@
-The MIT License (MIT)
+MIT License
 
-Copyright (c) 2010-2015 Modest Tree Media  http://www.modesttree.com
+Copyright (c) 2016 Modest Tree Media Inc
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
