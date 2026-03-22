@@ -1,8 +1,13 @@
 {
   "name": "com.gamesmayer.zenject",
   "displayName": "Zenject",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "💉 Dependency injection framework for Unity.",
+  "author": {
+    "name": "GAMESMAYER"
+  },
+  "documentationUrl": "https://github.com/gamesmayer2/zenject#readme",
+  "changelogUrl": "https://github.com/gamesmayer2/zenject/blob/master/CHANGELOG.md",
   "dependencies": {},
   "samples": [
     {
