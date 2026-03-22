@@ -17,6 +17,7 @@
 - [Introduction](#introduction)
 - [Features](#features)
 - [Installation](#installation)
+- [Build](#build)
 - [Development](#development)
 - [History](#history)
 - [Documentation](#documentation)
@@ -53,7 +54,6 @@
   - [Scriptable Object Installer](#scriptable-object-installer)
   - [Runtime Parameters For Installers](#runtime-parameters-for-installers)
   - [Composite Installers](#composite-installers)
-  - [Using Zenject Outside Unity Or For DLLs](#using-zenject-outside-unity-or-for-dlls)
   - [Zenject Settings](#zenject-settings)
   - [Signals](#signals)
   - [Factories: Creating Objects Dynamically](#factories-creating-objects-dynamically)
@@ -181,39 +181,11 @@ Note that when importing Zenject into your unity project, you can uncheck any fo
 
 # Build
 
-If you choose to install Zenject from source, you will have to build the .dll file.
-
-## Prerequisites
-
-- Unity Editor 6 or newer (6000.x).
-- .NET SDK / MSBuild for C# solution builds.
-- Python 3.7+ for the release helper scripts in the `Build` folder.
-
-## Build Zenject-usage.dll
-
-The `Zenject-usage.dll` assembly is built from the solution in `AssemblyBuild/Zenject-usage`.
-
-On macOS/Linux:
-
-```bash
-cd AssemblyBuild/Zenject-usage
-dotnet build Zenject-usage.sln
-```
-
-On Windows (Developer Command Prompt):
-
-```bat
-cd AssemblyBuild\Zenject-usage
-msbuild Zenject-usage.sln
-```
-
-If needed for local Unity workflows, place the produced DLL in:
-
-`UnityProject/Assets/Plugins/Zenject/Source/Usage`
+See [here](Documentation/Build.md).
 
 ## Development
 
-If you want to collaborate on Zenject or extend the project, see the [Development guide](Documentation/Development.md).
+See [here](Documentation/Development.md).
 
 ## History
 
@@ -2112,14 +2084,6 @@ A special use case - that's worthwhile to mention - is for smooth installation a
 
 Composite Installers have their own documentation [here](Documentation/CompositeInstaller.md).
 
-## Using Zenject Outside Unity Or For DLLs
-
-If you are building some code as DLLs and then including them in Unity, you can still add bindings for those classes inside your installers, with the only limitation being that you have to use constructor injection. If you want to use the other inject approaches such as member injection or method injection, then you can do that too, however in that case you will need to add a reference for your project to `Zenject-Usage.dll` which can be found in the `Zenject\Source\Usage` directory. This DLL also includes the standard interfaces such as `ITickable,` `IInitializable,` etc. so you can use those as well.
-
-You can also use Zenject for non-unity projects by downloading `Zenject-NonUnity.zip` from the [releases section](https://github.com/svermeulen/Extenject/releases)
-
-Finally, if you are attempting to run unit tests outside of Unity using the Unity generated solution, you might encounter run time errors in the Zenject code when it attempts to access the Unity API. You can disable this behaviour by adding a define for `ZEN_TESTS_OUTSIDE_UNITY` in the generated solution.
-
 ## Zenject Settings
 
 A lot of the default behaviour in Zenject can be customized via a settings property on the ProjectContext. This includes the following:
@@ -3414,7 +3378,7 @@ For general troubleshooting / support, please use the [zenject subreddit](http:/
 
 ## Changelog
 
-See [here](Documentation/Changelog.md).
+See [here](UnityProject/Assets/Plugins/Zenject/Source/CHANGELOG.md).
 
 ## License
 
