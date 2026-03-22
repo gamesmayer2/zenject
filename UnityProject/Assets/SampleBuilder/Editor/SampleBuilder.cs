@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using ModestTree;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEngine;
 
 #if UNITY_2018_1_OR_NEWER
@@ -29,28 +30,26 @@ namespace Zenject.Internal
         //[MenuItem("ZenjectSamples/Enable Net 46")]
         static void EnableNet46()
         {
-            PlayerSettings.scriptingRuntimeVersion = ScriptingRuntimeVersion.Latest;
-            PlayerSettings.SetApiCompatibilityLevel(EditorUserBuildSettings.selectedBuildTargetGroup, ApiCompatibilityLevel.NET_4_6);
+            PlayerSettings.SetApiCompatibilityLevel(NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup), ApiCompatibilityLevel.NET_4_6);
             EditorApplication.Exit(0);
         }
 
         //[MenuItem("ZenjectSamples/Enable Net 35")]
         static void EnableNet35()
         {
-            PlayerSettings.scriptingRuntimeVersion = ScriptingRuntimeVersion.Legacy;
-            PlayerSettings.SetApiCompatibilityLevel(EditorUserBuildSettings.selectedBuildTargetGroup, ApiCompatibilityLevel.NET_2_0_Subset);
+            PlayerSettings.SetApiCompatibilityLevel(NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup), ApiCompatibilityLevel.NET_2_0_Subset);
             EditorApplication.Exit(0);
         }
 
         static void EnableBackendIl2cpp()
         {
-            PlayerSettings.SetScriptingBackend(EditorUserBuildSettings.selectedBuildTargetGroup, ScriptingImplementation.IL2CPP);
+            PlayerSettings.SetScriptingBackend(NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup),ScriptingImplementation.IL2CPP);
             EditorApplication.Exit(0);
         }
 
         static void EnableBackendNet()
         {
-            PlayerSettings.SetScriptingBackend(EditorUserBuildSettings.selectedBuildTargetGroup, ScriptingImplementation.WinRTDotNET);
+            PlayerSettings.SetScriptingBackend(NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup),ScriptingImplementation.WinRTDotNET);
             EditorApplication.Exit(0);
         }
 
@@ -104,7 +103,7 @@ namespace Zenject.Internal
 
         static string GetScriptingBackendString()
         {
-            var scriptingBackend = PlayerSettings.GetScriptingBackend(EditorUserBuildSettings.selectedBuildTargetGroup);
+            var scriptingBackend = PlayerSettings.GetScriptingBackend(NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup));
 
             if (scriptingBackend == ScriptingImplementation.IL2CPP)
             {
@@ -117,12 +116,7 @@ namespace Zenject.Internal
 
         static string GetScriptingRuntimeString()
         {
-            if (PlayerSettings.scriptingRuntimeVersion == ScriptingRuntimeVersion.Latest)
-            {
-                return "Net46";
-            }
-
-            return "Net35";
+            return "Net46";
         }
 
         static bool BuildGeneric(

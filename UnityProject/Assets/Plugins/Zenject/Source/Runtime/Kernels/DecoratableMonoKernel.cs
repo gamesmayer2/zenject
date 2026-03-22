@@ -20,6 +20,9 @@
         public InitializableManager InitializableManager { get; protected set; } = null;
 
         [InjectLocal]
+        public LateInitializableManager LateInitializableManager { get; protected set; } = null;
+
+        [InjectLocal]
         public DisposableManager DisposablesManager { get; protected set; } = null;
         
         
@@ -28,6 +31,7 @@
         public virtual void Initialize()
         {
             InitializableManager.Initialize();
+            LateInitializableManager.LateInitialize();
         }
 
         public void Update()

@@ -77,6 +77,7 @@
   <ItemGroup>
     <Compile Include="IGuiRenderable.cs" />
     <Compile Include="IInitializable.cs" />
+    <Compile Include="ILateInitializable.cs" />
     <Compile Include="InjectableInfo.cs" />
     <Compile Include="InjectAttribute.cs" />
     <Compile Include="InjectLocalAttribute.cs" />

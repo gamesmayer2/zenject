@@ -3436,8 +3436,8 @@ namespace Zenject
 
         public void BindExecutionOrder(Type type, int order)
         {
-            Assert.That(type.DerivesFrom<ITickable>() || type.DerivesFrom<IInitializable>() || type.DerivesFrom<IDisposable>() || type.DerivesFrom<ILateDisposable>() || type.DerivesFrom<IFixedTickable>() || type.DerivesFrom<ILateTickable>() || type.DerivesFrom<IPoolable>(),
-                "Expected type '{0}' to derive from one or more of the following interfaces: ITickable, IInitializable, ILateTickable, IFixedTickable, IDisposable, ILateDisposable", type);
+            Assert.That(type.DerivesFrom<ITickable>() || type.DerivesFrom<IInitializable>() || type.DerivesFrom<ILateInitializable>() || type.DerivesFrom<IDisposable>() || type.DerivesFrom<ILateDisposable>() || type.DerivesFrom<IFixedTickable>() || type.DerivesFrom<ILateTickable>() || type.DerivesFrom<IPoolable>(),
+                "Expected type '{0}' to derive from one or more of the following interfaces: ITickable, IInitializable, ILateInitializable, ILateTickable, IFixedTickable, IDisposable, ILateDisposable", type);
 
             if (type.DerivesFrom<ITickable>())
             {
@@ -3447,6 +3447,11 @@ namespace Zenject
             if (type.DerivesFrom<IInitializable>())
             {
                 BindInitializableExecutionOrder(type, order);
+            }
+
+            if (type.DerivesFrom<ILateInitializable>())
+            {
+                BindLateInitializableExecutionOrder(type, order);
             }
 
             if (type.DerivesFrom<IDisposable>())
@@ -3503,6 +3508,21 @@ namespace Zenject
 
             return BindInstance(
                 ValuePair.New(type, order)).WhenInjectedInto<InitializableManager>();
+        }
+
+        public CopyNonLazyBinder BindLateInitializableExecutionOrder<T>(int order)
+            where T : ILateInitializable
+        {
+            return BindLateInitializableExecutionOrder(typeof(T), order);
+        }
+
+        public CopyNonLazyBinder BindLateInitializableExecutionOrder(Type type, int order)
+        {
+            Assert.That(type.DerivesFrom<ILateInitializable>(),
+                "Expected type '{0}' to derive from ILateInitializable", type);
+
+            return BindInstance(
+                ValuePair.New(type, order)).WhenInjectedInto<LateInitializableManager>();
         }
 
         public CopyNonLazyBinder BindDisposableExecutionOrder<T>(int order)
