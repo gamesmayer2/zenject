@@ -24,6 +24,9 @@
 
         [InjectLocal]
         public DisposableManager DisposablesManager { get; protected set; } = null;
+
+        [InjectLocal]
+        public EventRegistrableManager EventRegistrableManager { get; protected set; } = null;
         
         
         public virtual bool ShouldInitializeOnStart() => true;
@@ -31,6 +34,7 @@
         public virtual void Initialize()
         {
             InitializableManager.Initialize();
+            EventRegistrableManager.RegisterEvents();
             LateInitializableManager.LateInitialize();
         }
 
@@ -51,6 +55,7 @@
 
         public void Dispose()
         {
+            EventRegistrableManager.UnregisterEvents();
             DisposablesManager.Dispose();
         }
 

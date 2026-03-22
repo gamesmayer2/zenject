@@ -21,6 +21,9 @@ namespace Zenject
         [InjectLocal]
         DisposableManager _disposablesManager = null;
 
+        [InjectLocal]
+        EventRegistrableManager _eventRegistrableManager = null;
+
         [InjectOptional] 
         private IDecoratableMonoKernel decoratableMonoKernel;
 
@@ -54,6 +57,7 @@ namespace Zenject
                 else
                 {
                     _initializableManager.Initialize();
+                    _eventRegistrableManager.RegisterEvents();
                     _lateInitializableManager.LateInitialize();
                 }
             }
@@ -122,6 +126,7 @@ namespace Zenject
                 }
                 else
                 {
+                    _eventRegistrableManager.UnregisterEvents();
                     _disposablesManager.Dispose();
                     _disposablesManager.LateDispose();
                 }
