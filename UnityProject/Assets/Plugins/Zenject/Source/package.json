@@ -4,6 +4,11 @@
   "displayName": "Zenject",
   "description": "💉 Dependency injection framework for Unity.",
   "unity": "2019.3",
+  "author": {
+    "name": "GAMESMAYER"
+  },
+  "documentationUrl": "https://github.com/gamesmayer2/zenject#readme",
+  "changelogUrl": "https://github.com/gamesmayer2/zenject/blob/master/CHANGELOG.md",
   "keywords": [
     "zenject",
     "extenject",
@@ -17,5 +22,17 @@
     "game development"
   ],
   "license": "MIT",
-  "dependencies": {}
+  "dependencies": {},
+  "samples": [
+    {
+      "displayName": "Sample Game 1 (beginner)",
+      "description": "",
+      "path": "Samples~/SampleGame1 (Beginner)"
+    },
+    {
+      "displayName": "Sample Game 2 (advanced)",
+      "description": "",
+      "path": "Samples~/SampleGame2 (Advanced)"
+    }
+  ]
 }
