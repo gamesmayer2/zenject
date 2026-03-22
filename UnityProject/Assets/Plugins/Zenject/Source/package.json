@@ -3,7 +3,7 @@
   "version": "9.2.0",
   "displayName": "Zenject",
   "description": "💉 Dependency injection framework for Unity.",
-  "unity": "2019.3",
+  "unity": "6000.0",
   "author": {
     "name": "GAMESMAYER"
   },

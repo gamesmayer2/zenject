@@ -32,9 +32,14 @@
     - [Construction Methods](#construction-methods)
   - [Installers](#installers)
   - [Using Non-MonoBehaviour Classes](#using-non-monobehaviour-classes)
-    - [ITickable](#itickable)
     - [IInitializable](#iinitializable)
+    - [IEventRegistrable](#ieventregistrable)
+    - [ILateInitializable](#ilateinitializable)
+    - [ITickable](#itickable)
+    - [IFixedTickable](#ifixedtickable)
+    - [ILateTickable](#ilatetickable)
     - [IDisposable](#idisposable)
+    - [ILateDisposable](#ilatedisposable)
     - [BindInterfacesTo and BindInterfacesAndSelfTo](#bindinterfacesto-and-bindinterfacesandselfto)
     - [Using the Unity Inspector To Configure Settings](#using-the-unity-inspector-to-configure-settings)
   - [Object Graph Validation](#object-graph-validation)
@@ -1081,39 +1086,11 @@ When calling installers from other installers it is common to want to pass param
 
 ## Using Non-MonoBehaviour Classes
 
-### ITickable
+### IInitializable
 
 ---
 
 In some cases it is preferable to avoid the extra weight of MonoBehaviours in favour of just normal C# classes. Zenject allows you to do this much more easily by providing interfaces that mirror functionality that you would normally need to use a MonoBehaviour for.
-
-For example, if you have code that needs to run per frame, then you can implement the `ITickable` interface:
-
-```csharp
-public class Ship : ITickable
-{
-    public void Tick()
-    {
-        // Perform per frame tasks
-    }
-}
-```
-
-Then, to hook it up in an installer:
-
-```csharp
-Container.Bind<ITickable>().To<Ship>().AsSingle();
-```
-
-Or if you don't want to have to always remember which interfaces your class implements, you can use the [shortcut described here](#bindinterfacesto-and-bindinterfacesandselfto)
-
-Note that the order that the Tick() is called in for all ITickables is also configurable, as outlined [here](#update--initialization-order).
-
-Also note that there are interfaces `ILateTickable` and `IFixedTickable` which mirror Unity's LateUpdate and FixedUpdated methods
-
-### IInitializable
-
----
 
 If you have some initialization that needs to occur on a given object, you could include this code in the constructor. However, this means that the initialization logic would occur in the middle of the object graph being constructed, so it may not be ideal.
 
@@ -1161,6 +1138,166 @@ public class Foo
 }
 ```
 
+### IEventRegistrable
+
+---
+
+`IEventRegistrable` provides two lifecycle hooks for managing event subscriptions. The full startup and shutdown order is:
+
+1. `IInitializable.Initialize()`
+2. **`IEventRegistrable.RegisterEvents()`** ← wire up event listeners
+3. `ILateInitializable.LateInitialize()`
+4. _(runtime — Update, etc.)_
+5. **`IEventRegistrable.UnregisterEvents()`** ← tear down event listeners (called after RegisterEvents, before Dispose)
+6. `IDisposable.Dispose()`
+
+This gives you a dedicated, clearly-scoped place to wire up and tear down event listeners without mixing that logic into initialization or disposal.
+
+```csharp
+public class Ship : IEventRegistrable
+{
+    readonly SignalBus _signalBus;
+
+    public Ship(SignalBus signalBus)
+    {
+        _signalBus = signalBus;
+    }
+
+    public void RegisterEvents()
+    {
+        _signalBus.Subscribe<EnemyDestroyedSignal>(OnEnemyDestroyed);
+    }
+
+    public void UnregisterEvents()
+    {
+        _signalBus.Unsubscribe<EnemyDestroyedSignal>(OnEnemyDestroyed);
+    }
+
+    void OnEnemyDestroyed(EnemyDestroyedSignal signal)
+    {
+        // Handle event
+    }
+}
+```
+
+Then, to hook it up in an installer:
+
+```csharp
+Container.Bind<IEventRegistrable>().To<Ship>().AsSingle();
+```
+
+Or use the shortcut:
+
+```csharp
+Container.BindInterfacesAndSelfTo<Ship>().AsSingle();
+```
+
+The execution order of `RegisterEvents()` is customizable via `BindEventRegistrableExecutionOrder`. `UnregisterEvents()` is always called in the reverse order of `RegisterEvents()`, matching the LIFO convention of `IDisposable`. See [here](#update--initialization-order) for details.
+
+### ILateInitializable
+
+---
+
+`ILateInitializable` works just like `IInitializable`, except that the `LateInitialize()` method is called after all `IEventRegistrable.RegisterEvents()` methods have been called. This is useful when you need to perform initialization logic that depends on other objects having already registered their events.
+
+```csharp
+public class Ship : ILateInitializable
+{
+    public void LateInitialize()
+    {
+        // Perform initialization that requires events to have been registered first
+    }
+}
+```
+
+Then, to hook it up in an installer:
+
+```csharp
+Container.Bind<ILateInitializable>().To<Ship>().AsSingle();
+```
+
+Or use the shortcut:
+
+```csharp
+Container.BindInterfacesAndSelfTo<Ship>().AsSingle();
+```
+
+The execution order is customizable via `BindLateInitializableExecutionOrder`, the same way as `IInitializable`, as explained [here](#update--initialization-order).
+
+### ITickable
+
+---
+
+If you have code that needs to run per frame, you can implement the `ITickable` interface:
+
+```csharp
+public class Ship : ITickable
+{
+    public void Tick()
+    {
+        // Perform per frame tasks
+    }
+}
+```
+
+Then, to hook it up in an installer:
+
+```csharp
+Container.Bind<ITickable>().To<Ship>().AsSingle();
+```
+
+Or if you don't want to have to always remember which interfaces your class implements, you can use the [shortcut described here](#bindinterfacesto-and-bindinterfacesandselfto)
+
+Note that the order that the Tick() is called in for all ITickables is also configurable, as outlined [here](#update--initialization-order).
+
+### IFixedTickable
+
+---
+
+`IFixedTickable` mirrors Unity's `FixedUpdate()` and is called on the physics timestep. Use it for physics-related per-frame logic.
+
+```csharp
+public class Ship : IFixedTickable
+{
+    public void FixedTick()
+    {
+        // Perform physics-related per frame tasks
+    }
+}
+```
+
+Then, to hook it up in an installer:
+
+```csharp
+Container.Bind<IFixedTickable>().To<Ship>().AsSingle();
+```
+
+The execution order is configurable via `BindFixedTickableExecutionOrder`, as outlined [here](#update--initialization-order).
+
+### ILateTickable
+
+---
+
+`ILateTickable` mirrors Unity's `LateUpdate()` and is called once per frame after all `ITickable.Tick()` calls have completed. Use it for logic that must run after all other per-frame updates, such as camera following.
+
+```csharp
+public class CameraController : ILateTickable
+{
+    public void LateTick()
+    {
+        // Perform per frame tasks that must run after Tick()
+    }
+}
+```
+
+Then, to hook it up in an installer:
+
+```csharp
+Container.Bind<ILateTickable>().To<CameraController>().AsSingle();
+```
+
+The execution order is configurable via `BindLateTickableExecutionOrder`, as outlined [here](#update--initialization-order).
+
 ### IDisposable
 
 ---
@@ -1203,13 +1340,41 @@ Container.BindInterfacesAndSelfTo<Logger>().AsSingle();
 
 This works because when the scene changes or your unity application is closed, the unity event `OnDestroy()` is called on all MonoBehaviours, including the SceneContext class, which then triggers `Dispose()` on all objects that are bound to `IDisposable`.
 
-You can also implement the `ILateDisposable` interface which works similar to `ILateTickable` in that it will be called after all `IDisposable` objects have been triggered. However, for most cases you're probably better off setting an explicit [execution order](#update--initialization-order) instead if the order is an issue.
+### ILateDisposable
+
+---
+
+`ILateDisposable` works just like `IDisposable`, except that the `LateDispose()` method is called after all `IDisposable.Dispose()` methods have been called. For most cases you're probably better off setting an explicit [execution order](#update--initialization-order) instead if the order is an issue, but `ILateDisposable` can be useful when you need a hard guarantee that certain cleanup runs last.
+
+```csharp
+public class Logger : ILateDisposable
+{
+    public void LateDispose()
+    {
+        // Perform cleanup that must run after all IDisposable objects have been disposed
+    }
+}
+```
+
+Then, to hook it up in an installer:
+
+```csharp
+Container.Bind<ILateDisposable>().To<Logger>().AsSingle();
+```
+
+Or use the shortcut:
+
+```csharp
+Container.BindInterfacesAndSelfTo<Logger>().AsSingle();
+```
+
+The execution order is configurable via `BindLateDisposableExecutionOrder`, as outlined [here](#update--initialization-order).
 
 ### BindInterfacesTo and BindInterfacesAndSelfTo
 
 ---
 
-If you end up using the `ITickable`, `IInitializable`, and `IDisposable` interfaces as described above, you will often end up with code like this:
+If you end up using some of the non-MonoBehaviour lifecycle interfaces as described above, you will often end up with code like this:
 
 ```csharp
 Container.Bind(typeof(Foo), typeof(IInitializable), typeof(IDisposable)).To<Logger>().AsSingle();
@@ -2156,7 +2321,7 @@ public class AsteroidsInstaller : MonoInstaller
 
 This way, you won't hit a wall at the end of the project due to some unforeseen order-dependency.
 
-Note here that the value given to `BindExecutionOrder` will apply to `ITickable` / `IInitializable` and `IDisposable` (with the order reversed for `IDisposable`'s).
+Note here that the value given to `BindExecutionOrder` will apply to `ITickable` / `IInitializable` / `IEventRegistrable` and `IDisposable` (with the order reversed for `IDisposable`'s and `IEventRegistrable.UnregisterEvents()`).
 
 You can also assign priorities for each specific interface separately like this:
 
@@ -2166,6 +2331,9 @@ Container.BindInitializableExecutionOrder<Bar>(-20);
 
 Container.BindTickableExecutionOrder<Foo>(10);
 Container.BindTickableExecutionOrder<Bar>(-80);
+
+Container.BindEventRegistrableExecutionOrder<Foo>(5);
+Container.BindEventRegistrableExecutionOrder<Bar>(-5);
 ```
 
 Any ITickables, IInitializables, or IDisposables that are not assigned a priority are automatically given the priority of zero. This allows you to have classes with explicit priorities executed either before or after the unspecified classes. For example, the above code would result in `Foo.Initialize` being called before `Bar.Initialize`.
@@ -2189,8 +2357,8 @@ What follows below is a more detailed view of what happens when running a scene 
   - If any required dependencies cannot be resolved, a ZenjectResolveException is thrown
   - All other MonoBehaviour's in the scene have their Awake() method called
 - Unity Start() phase begins
-  - ProjectKernel.Start() method is called. This will trigger the Initialize() method on all `IInitializable` objects in the order specified in the ProjectContext installers.
-  - SceneKernel.Start() method is called. This will trigger the Initialize() method on all `IInitializable` objects in the order specified in the SceneContext installers.
+  - ProjectKernel.Start() method is called. This will trigger the Initialize() method on all `IInitializable` objects, then `RegisterEvents()` on all `IEventRegistrable` objects, then `LateInitialize()` on all `ILateInitializable` objects — each in the order specified in the ProjectContext installers.
+  - SceneKernel.Start() method is called. This will trigger the Initialize() method on all `IInitializable` objects, then `RegisterEvents()` on all `IEventRegistrable` objects, then `LateInitialize()` on all `ILateInitializable` objects — each in the order specified in the SceneContext installers.
   - All other MonoBehaviour's in your scene have their Start() method called
 - Unity Update() phase begins
   - ProjectKernel.Update() is called, which results in Tick() being called for all `ITickable` objects (in the order specified in the ProjectContext installers)
@@ -2199,10 +2367,10 @@ What follows below is a more detailed view of what happens when running a scene 
 - These same steps repeated for LateUpdate and ILateTickable
 - At the same time, These same steps are repeated for FixedUpdate according to the physics timestep
 - Unity scene is unloaded
-  - Dispose() is called on all objects mapped to `IDisposable` within all the GameObjectContext's (see [here](#idisposable) for details)
-  - Dispose() is called on all objects mapped to `IDisposable` within the SceneContext installers (see [here](#idisposable) for details)
+  - UnregisterEvents() is called on all objects mapped to `IEventRegistrable`, then Dispose() is called on all objects mapped to `IDisposable` within all the GameObjectContext's (see [here](#idisposable) for details)
+  - UnregisterEvents() is called on all objects mapped to `IEventRegistrable`, then Dispose() is called on all objects mapped to `IDisposable` within the SceneContext installers (see [here](#idisposable) for details)
 - App is exitted
-  - Dispose() is called on all objects mapped to `IDisposable` within the ProjectContext installers (see [here](#idisposable) for details)
+  - UnregisterEvents() is called on all objects mapped to `IEventRegistrable`, then Dispose() is called on all objects mapped to `IDisposable` within the ProjectContext installers (see [here](#idisposable) for details)
 
 ## Injecting data across scenes
 

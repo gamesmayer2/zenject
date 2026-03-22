@@ -3436,8 +3436,8 @@ namespace Zenject
 
         public void BindExecutionOrder(Type type, int order)
         {
-            Assert.That(type.DerivesFrom<ITickable>() || type.DerivesFrom<IInitializable>() || type.DerivesFrom<ILateInitializable>() || type.DerivesFrom<IDisposable>() || type.DerivesFrom<ILateDisposable>() || type.DerivesFrom<IFixedTickable>() || type.DerivesFrom<ILateTickable>() || type.DerivesFrom<IPoolable>(),
-                "Expected type '{0}' to derive from one or more of the following interfaces: ITickable, IInitializable, ILateInitializable, ILateTickable, IFixedTickable, IDisposable, ILateDisposable", type);
+            Assert.That(type.DerivesFrom<ITickable>() || type.DerivesFrom<IInitializable>() || type.DerivesFrom<ILateInitializable>() || type.DerivesFrom<IEventRegistrable>() || type.DerivesFrom<IDisposable>() || type.DerivesFrom<ILateDisposable>() || type.DerivesFrom<IFixedTickable>() || type.DerivesFrom<ILateTickable>() || type.DerivesFrom<IPoolable>(),
+                "Expected type '{0}' to derive from one or more of the following interfaces: ITickable, IInitializable, ILateInitializable, IEventRegistrable, ILateTickable, IFixedTickable, IDisposable, ILateDisposable", type);
 
             if (type.DerivesFrom<ITickable>())
             {
@@ -3452,6 +3452,11 @@ namespace Zenject
             if (type.DerivesFrom<ILateInitializable>())
             {
                 BindLateInitializableExecutionOrder(type, order);
+            }
+
+            if (type.DerivesFrom<IEventRegistrable>())
+            {
+                BindEventRegistrableExecutionOrder(type, order);
             }
 
             if (type.DerivesFrom<IDisposable>())
@@ -3523,6 +3528,21 @@ namespace Zenject
 
             return BindInstance(
                 ValuePair.New(type, order)).WhenInjectedInto<LateInitializableManager>();
+        }
+
+        public CopyNonLazyBinder BindEventRegistrableExecutionOrder<T>(int order)
+            where T : IEventRegistrable
+        {
+            return BindEventRegistrableExecutionOrder(typeof(T), order);
+        }
+
+        public CopyNonLazyBinder BindEventRegistrableExecutionOrder(Type type, int order)
+        {
+            Assert.That(type.DerivesFrom<IEventRegistrable>(),
+                "Expected type '{0}' to derive from IEventRegistrable", type);
+
+            return BindInstance(
+                ValuePair.New(type, order)).WhenInjectedInto<EventRegistrableManager>();
         }
 
         public CopyNonLazyBinder BindDisposableExecutionOrder<T>(int order)

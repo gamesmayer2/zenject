@@ -18,14 +18,19 @@ namespace Zenject
         [InjectLocal]
         DisposableManager _disposablesManager = null;
 
+        [InjectLocal]
+        EventRegistrableManager _eventRegistrableManager = null;
+
         public virtual void Initialize()
         {
             _initializableManager.Initialize();
+            _eventRegistrableManager.RegisterEvents();
             _lateInitializableManager.LateInitialize();
         }
 
         public virtual void Dispose()
         {
+            _eventRegistrableManager.UnregisterEvents();
             _disposablesManager.Dispose();
         }
 

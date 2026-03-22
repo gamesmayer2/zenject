@@ -5,6 +5,7 @@
 <details>
 <summary>Details</summary>
 
+- [Version 9.2.0 (March 22, 2026)](#version-920-march-22-2026)
 - [Version 9.1.0 (October 13, 2019)](#version-910-october-13-2019)
 - [Version 9.0.0 (April 21, 2019)](#version-900-april-21-2019)
 - [Version 6.6.1 (April 21, 2019)](#version-661-april-21-2019)
@@ -81,6 +82,17 @@
 ---
 
 <small>⚠️ All versions listed below were created before the repository fork. For current development, see the versions above.</small>
+
+## Version 9.2.0 (March 22, 2026)
+
+New Features
+
+- Added `ILateInitializable` interface with `LateInitialize()` lifecycle stage, called after `IEventRegistrable.RegisterEvents()` and before the first frame update
+- Added `LateInitializableManager` to manage execution of `ILateInitializable` objects with priority ordering
+- Added `BindLateInitializableExecutionOrder` method on `DiContainer`
+- Added `IEventRegistrable` interface with `RegisterEvents()` and `UnregisterEvents()` lifecycle stages. `RegisterEvents()` is called after `IInitializable.Initialize()` and before `ILateInitializable.LateInitialize()`. `UnregisterEvents()` is called before `IDisposable.Dispose()`
+- Added `EventRegistrableManager` to manage execution of `IEventRegistrable` objects with priority ordering
+- Added `BindEventRegistrableExecutionOrder` method on `DiContainer`
 
 ## Version 9.1.0 (October 13, 2019)
 

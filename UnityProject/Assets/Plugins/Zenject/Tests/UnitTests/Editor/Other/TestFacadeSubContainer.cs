@@ -14,12 +14,15 @@ namespace Zenject.Tests.Other
         {
             NumInstalls = 0;
             InitTest.WasRun = false;
+            RegisterEventsTest.WasRegistered = false;
+            RegisterEventsTest.WasUnregistered = false;
+            LateInitTest.WasRun = false;
             TickTest.WasRun = false;
             DisposeTest.WasRun = false;
 
             var container = new DiContainer();
 
-            container.Bind(typeof(TickableManager), typeof(InitializableManager), typeof(DisposableManager), typeof(LateInitializableManager))
+            container.Bind(typeof(TickableManager), typeof(InitializableManager), typeof(DisposableManager), typeof(EventRegistrableManager), typeof(LateInitializableManager))
                 .ToSelf().AsSingle().CopyIntoAllSubContainers();
 
             // This is how you add ITickables / etc. within sub containers
@@ -28,17 +31,28 @@ namespace Zenject.Tests.Other
 
             var tickManager = container.Resolve<TickableManager>();
             var initManager = container.Resolve<InitializableManager>();
+            var eventRegistrableManager = container.Resolve<EventRegistrableManager>();
+            var lateInitManager = container.Resolve<LateInitializableManager>();
             var disposeManager = container.Resolve<DisposableManager>();
 
             Assert.That(!InitTest.WasRun);
+            Assert.That(!RegisterEventsTest.WasRegistered);
+            Assert.That(!RegisterEventsTest.WasUnregistered);
+            Assert.That(!LateInitTest.WasRun);
             Assert.That(!TickTest.WasRun);
             Assert.That(!DisposeTest.WasRun);
 
             initManager.Initialize();
+            eventRegistrableManager.RegisterEvents();
+            lateInitManager.LateInitialize();
             tickManager.Update();
+            eventRegistrableManager.UnregisterEvents();
             disposeManager.Dispose();
 
             Assert.That(InitTest.WasRun);
+            Assert.That(RegisterEventsTest.WasRegistered);
+            Assert.That(RegisterEventsTest.WasUnregistered);
+            Assert.That(LateInitTest.WasRun);
             Assert.That(TickTest.WasRun);
             Assert.That(DisposeTest.WasRun);
         }
@@ -50,6 +64,8 @@ namespace Zenject.Tests.Other
             subContainer.Bind<FooKernel>().AsSingle();
 
             subContainer.Bind<IInitializable>().To<InitTest>().AsSingle();
+            subContainer.Bind<IEventRegistrable>().To<RegisterEventsTest>().AsSingle();
+            subContainer.Bind<ILateInitializable>().To<LateInitTest>().AsSingle();
             subContainer.Bind<ITickable>().To<TickTest>().AsSingle();
             subContainer.Bind<IDisposable>().To<DisposeTest>().AsSingle();
         }
@@ -63,6 +79,32 @@ namespace Zenject.Tests.Other
             public static bool WasRun;
 
             public void Initialize()
+            {
+                WasRun = true;
+            }
+        }
+
+        public class RegisterEventsTest : IEventRegistrable
+        {
+            public static bool WasRegistered;
+            public static bool WasUnregistered;
+
+            public void RegisterEvents()
+            {
+                WasRegistered = true;
+            }
+
+            public void UnregisterEvents()
+            {
+                WasUnregistered = true;
+            }
+        }
+
+        public class LateInitTest : ILateInitializable
+        {
+            public static bool WasRun;
+
+            public void LateInitialize()
             {
                 WasRun = true;
             }
@@ -89,5 +131,3 @@ namespace Zenject.Tests.Other
         }
     }
 }
-
-
